@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Weltentdecker</title>
+  <meta name="description" content="Geografie-Lernspiel: Kontinente, Länder, Hauptstädte und Flaggen entdecken." />
+  <meta name="theme-color" content="#2f80d1" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Karte -->
+    <div id="map-wrap">
+      <svg id="map" aria-label="Weltkarte"></svg>
+    </div>
+
+    <!-- Obere Leiste im Spiel -->
+    <header id="hud" class="hidden">
+      <button class="icon-btn" id="btn-back" aria-label="Zurück zum Menü">⬅</button>
+      <div id="question" class="bubble">
+        <div id="q-flag" class="hidden"></div>
+        <div class="q-text-wrap">
+          <div id="q-label"></div>
+          <div id="q-text"></div>
+        </div>
+        <button class="icon-btn small" id="btn-speak" aria-label="Frage vorlesen">🔊</button>
+      </div>
+      <div id="stats">
+        <div class="pill" id="st-progress">1/10</div>
+        <div class="pill" id="st-score">⭐ 0</div>
+        <div class="pill" id="st-hearts"></div>
+      </div>
+      <div id="timer" class="hidden"><div id="timer-bar"></div></div>
+    </header>
+
+    <!-- Entdecken-Leiste -->
+    <header id="explore-bar" class="hidden">
+      <button class="icon-btn" id="btn-back2" aria-label="Zurück zum Menü">⬅</button>
+      <div class="bubble explore-bubble">
+        <span>🔍</span>
+        <input id="search" list="country-list" placeholder="Land suchen …" autocomplete="off" />
+        <datalist id="country-list"></datalist>
+      </div>
+      <button class="icon-btn" id="btn-random" aria-label="Zufälliges Land">🎲</button>
+    </header>
+
+    <!-- Zoom-Knöpfe -->
+    <div id="zoom-ctrl" class="hidden">
+      <button class="icon-btn" id="zoom-in" aria-label="Hineinzoomen">＋</button>
+      <button class="icon-btn" id="zoom-out" aria-label="Herauszoomen">－</button>
+      <button class="icon-btn" id="zoom-home" aria-label="Ganze Welt">🌍</button>
+    </div>
+
+    <!-- Rückmeldung -->
+    <div id="toast" class="hidden"></div>
+
+    <!-- Steckbrief -->
+    <aside id="card" class="hidden" aria-live="polite">
+      <button class="card-close" id="card-close" aria-label="Schließen">✕</button>
+      <div id="card-body"></div>
+      <div id="card-actions"></div>
+    </aside>
+
+    <!-- Startbildschirm -->
+    <section id="screen-home" class="screen">
+      <div class="sky">
+        <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      </div>
+      <div class="home-inner">
+        <div class="hero">
+          <div id="mascot" class="mascot">
+            <canvas id="globe" width="320" height="320"></canvas>
+            <svg class="face" viewBox="0 0 100 100" aria-hidden="true">
+              <g class="eyes">
+                <ellipse cx="36" cy="44" rx="8" ry="10" fill="#fff" />
+                <ellipse cx="64" cy="44" rx="8" ry="10" fill="#fff" />
+                <circle class="pupil" cx="37" cy="46" r="4.5" fill="#1d2b4f" />
+                <circle class="pupil" cx="65" cy="46" r="4.5" fill="#1d2b4f" />
+                <circle cx="38.5" cy="43.5" r="1.6" fill="#fff" />
+                <circle cx="66.5" cy="43.5" r="1.6" fill="#fff" />
+              </g>
+              <ellipse cx="25" cy="60" rx="6" ry="3.5" fill="#ff7aa2" opacity=".55" />
+              <ellipse cx="75" cy="60" rx="6" ry="3.5" fill="#ff7aa2" opacity=".55" />
+              <path class="mouth" d="M38 62 Q50 74 62 62" stroke="#1d2b4f" stroke-width="3.5" fill="none" stroke-linecap="round" />
+            </svg>
+          </div>
+          <h1 class="title"><span>W</span><span>e</span><span>l</span><span>t</span><span>e</span><span>n</span><span>t</span><span>d</span><span>e</span><span>c</span><span>k</span><span>e</span><span>r</span></h1>
+          <p class="subtitle">Entdecke Kontinente, Länder und Flaggen!</p>
+        </div>
+
+        <div class="panel">
+          <h2>1. Wähle deine Stufe</h2>
+          <div id="levels" class="levels"></div>
+        </div>
+
+        <div class="panel">
+          <h2>2. Was möchtest du spielen?</h2>
+          <div id="modes" class="modes"></div>
+        </div>
+
+        <div class="settings">
+          <button class="toggle" id="tg-music">🎵 Musik</button>
+          <button class="toggle" id="tg-sfx">🔔 Töne</button>
+          <button class="toggle" id="tg-voice">🗣 Vorlesen</button>
+          <label class="toggle select">🏠
+            <select id="home-country" aria-label="Mein Land für Vergleiche">
+              <option value="CHE">Schweiz</option>
+              <option value="DEU">Deutschland</option>
+              <option value="AUT">Österreich</option>
+              <option value="LIE">Liechtenstein</option>
+              <option value="LUX">Luxemburg</option>
+            </select>
+          </label>
+        </div>
+        <p class="credits">Daten: Natural Earth, Weltbank, Wikidata · Flaggen: flag-icons</p>
+      </div>
+    </section>
+
+    <!-- Kontinent-Auswahl -->
+    <section id="screen-continent" class="screen hidden">
+      <div class="sky"><div class="cloud c1"></div><div class="cloud c2"></div></div>
+      <div class="home-inner">
+        <button class="icon-btn back-abs" id="btn-back3" aria-label="Zurück">⬅</button>
+        <h2 class="big-h" id="continent-title">Wo möchtest du spielen?</h2>
+        <div id="continent-grid" class="continent-grid"></div>
+      </div>
+    </section>
+
+    <!-- Ergebnis -->
+    <section id="screen-result" class="screen hidden">
+      <div class="sky"><div class="cloud c1"></div><div class="cloud c3"></div></div>
+      <div class="home-inner">
+        <div class="result-card">
+          <h2 id="res-title">Super gemacht!</h2>
+          <div id="res-stars" class="stars"><span>★</span><span>★</span><span>★</span></div>
+          <div id="res-score" class="res-score"></div>
+          <div id="res-record" class="record hidden">🏆 Neuer Rekord!</div>
+          <div id="res-list" class="res-list"></div>
+          <div class="res-actions">
+            <button class="btn primary" id="btn-again">🔁 Nochmal</button>
+            <button class="btn" id="btn-menu">🏠 Menü</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <canvas id="confetti"></canvas>
+    <div id="loading">Die Welt wird geladen … 🌍</div>
+  </div>
+
+  <script src="vendor/d3.min.js"></script>
+  <script src="vendor/topojson-client.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

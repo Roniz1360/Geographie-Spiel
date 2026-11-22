@@ -1,0 +1,19 @@
+{
+  "name": "geographie-spiel",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Weltentdecker – Geografie-Lernspiel für Kinder und Erwachsene",
+  "type": "module",
+  "scripts": {
+    "build:data": "node tools/build-data.mjs",
+    "start": "node tools/serve.mjs",
+    "test": "node tools/smoke-test.mjs"
+  },
+  "devDependencies": {
+    "d3": "7.9.2",
+    "flag-icons": "7.6.0",
+    "topojson-client": "3.1.0",
+    "world-atlas": "2.0.2",
+    "world-countries": "5.1.0"
+  }
+}
